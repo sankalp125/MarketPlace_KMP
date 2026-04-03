@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.sankalp.marketplace.ui.splash.SplashRoot
 
 
 @Composable
@@ -16,7 +17,11 @@ fun AppNavGraph(
         startDestination = startDestination
     ){
         composable(Screen.Splash.route){
-            // design splash here
+            // splash screen
+            SplashRoot(
+                onNavigateToDashBoard = {},
+                onNavigateToOnBoard = {}
+            )
         }
         composable(Screen.OnBoard.route){
             // design onBoard here
