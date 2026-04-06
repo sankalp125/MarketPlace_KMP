@@ -11,8 +11,11 @@ import kotlinx.coroutines.launch
 class SplashVm(
     private val tokenStorage : TokenStorage
 ): ViewModel(){
-    private val _effect = Channel<SplashEffect>(Channel.Factory.BUFFERED)
+    private val _effect = Channel<SplashEffect>(Channel.BUFFERED)
     val effect = _effect.receiveAsFlow()
+    init {
+        checkNavigation()
+    }
 
     private fun checkNavigation(){
         viewModelScope.launch {
