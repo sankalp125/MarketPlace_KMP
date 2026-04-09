@@ -41,7 +41,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -115,9 +114,9 @@ private fun LoginScreen(
 
     // Logo size responsive
     val logoSize: Dp = when (windowSize) {
-        WindowSize.Compact -> 80.dp
-        WindowSize.Medium -> 100.dp
-        WindowSize.Expanded -> 120.dp
+        WindowSize.Compact -> 100.dp
+        WindowSize.Medium -> 120.dp
+        WindowSize.Expanded -> 150.dp
     }
 
     Box(modifier = modifier) {
