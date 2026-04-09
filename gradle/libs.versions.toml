@@ -21,6 +21,7 @@ coil = "3.4.0"
 kotlinx-serialization = "1.10.0"
 navigation-compose = "2.9.2"
 multiplatform-settings = "1.3.0"
+windowSize = "0.5.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -70,6 +71,8 @@ navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-co
 # Multiplatform Settings (DataStore replacement)
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatform-settings" }
 multiplatform-settings-coroutines = { module = "com.russhwolf:multiplatform-settings-coroutines", version.ref = "multiplatform-settings" }
+# Window Size Class
+window-size = { module = "dev.chrisbanes.material3:material3-window-size-class-multiplatform", version.ref = "windowSize" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

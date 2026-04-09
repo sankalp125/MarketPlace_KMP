@@ -73,6 +73,8 @@ kotlin {
             // Settings
             implementation(libs.multiplatform.settings)
             implementation(libs.multiplatform.settings.coroutines)
+            // Window Size
+            implementation(libs.window.size)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
