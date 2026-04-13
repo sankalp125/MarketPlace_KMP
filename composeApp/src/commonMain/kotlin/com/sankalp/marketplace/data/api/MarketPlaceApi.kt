@@ -1,8 +1,12 @@
 package com.sankalp.marketplace.data.api
 
 import com.sankalp.marketplace.data.models.ErrorResponse
+import com.sankalp.marketplace.data.models.ForgotPasswordRequest
+import com.sankalp.marketplace.data.models.ForgotPasswordResponse
 import com.sankalp.marketplace.data.models.LoginRequest
 import com.sankalp.marketplace.data.models.LoginResponse
+import com.sankalp.marketplace.data.models.PasswordResetRequest
+import com.sankalp.marketplace.data.models.PasswordResetResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post
@@ -17,6 +21,18 @@ class MarketPlaceApi(private val client: HttpClient){
         request: LoginRequest
     ) : NetworkResult<LoginResponse> = safeApiCall {
         client.post("normal/login") { setBody(request) }
+    }
+
+    suspend fun requestForgetPassword(
+        request: ForgotPasswordRequest
+    ) : NetworkResult<ForgotPasswordResponse> = safeApiCall {
+        client.post("normal/request-password-reset") { setBody(request) }
+    }
+
+    suspend fun requestPasswordReset(
+        request : PasswordResetRequest
+    ) : NetworkResult<PasswordResetResponse> = safeApiCall {
+        client.post("normal/reset-password") { setBody(request) }
     }
 }
 

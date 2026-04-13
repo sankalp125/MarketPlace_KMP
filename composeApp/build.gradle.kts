@@ -75,6 +75,8 @@ kotlin {
             implementation(libs.multiplatform.settings.coroutines)
             // Window Size
             implementation(libs.window.size)
+            // compose icons
+            implementation(libs.composeIcons.feather)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

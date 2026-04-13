@@ -39,3 +39,33 @@ data class LoginResponse(
     val refreshToken : String
 )
 // endregion
+
+// region Forgot Password Request
+@Serializable
+data class ForgotPasswordRequest(
+    val email : String
+)
+// endregion
+
+// region Forgot Password Response
+@Serializable
+data class ForgotPasswordResponse(
+    val message : String
+)
+// endregion
+
+// region Password Reset Request
+@Serializable
+data class PasswordResetRequest(
+    val email: String,
+    val otp: String,
+    val newPassword: String
+)
+// endregion
+
+// region Password Reset Response
+@Serializable
+data class PasswordResetResponse(
+    val message: String
+)
+// endregion

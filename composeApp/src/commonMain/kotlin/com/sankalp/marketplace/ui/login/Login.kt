@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -55,8 +56,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.sankalp.marketplace.ui.component.UniversalBottomSheet
 import com.sankalp.marketplace.utils.WindowSize
 import com.sankalp.marketplace.utils.getWindowSize
+import com.sankalp.marketplace.utils.rememberBottomSheetManager
+import compose.icons.FeatherIcons
+import compose.icons.feathericons.ArrowRight
 import marketplaceapp.composeapp.generated.resources.Res
 import marketplaceapp.composeapp.generated.resources.ic_visibility
 import marketplaceapp.composeapp.generated.resources.ic_visibility_off
@@ -74,25 +79,59 @@ fun LoginRoot(
     val onEvent = viewModel::onEvent
     val snackBarHostState = remember { SnackbarHostState() }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val bottomSheetManager = rememberBottomSheetManager()
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
-                is LoginEffect.ShowError -> {
+                is LoginEffect.ShowMessage -> {
                     snackBarHostState.showSnackbar(effect.message)
                 }
 
                 is LoginEffect.NavigateToHome -> onNavigateToHome()
                 is LoginEffect.NavigateToRegister -> onNavigateToRegister()
+                is LoginEffect.ShowBottomSheet -> {
+                    bottomSheetManager.show {
+                        when (effect.type) {
+                            BottomSheetType.EMAIL -> ForgotPasswordEmail(
+                                onEvent = onEvent,
+                                state = state
+                            )
+
+                            BottomSheetType.OTP -> ForgotPasswordOTP(
+                                onEvent = onEvent,
+                                state = state
+                            )
+                            BottomSheetType.PASSWORD -> ForgotPasswordPassword(
+                                onEvent = onEvent,
+                                state = state
+                            )
+                            BottomSheetType.NONE -> {
+                                bottomSheetManager.hide()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
-    LoginScreen(
-        modifier = Modifier,
-        state = state,
-        onEvent = onEvent,
-        snackBarHostState = snackBarHostState,
-        keyboardController = keyboardController
-    )
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        LoginScreen(
+            modifier = Modifier.fillMaxSize(),
+            state = state,
+            onEvent = onEvent,
+            snackBarHostState = snackBarHostState,
+            keyboardController = keyboardController
+        )
+        UniversalBottomSheet(
+            manager = bottomSheetManager,
+            onDismiss = {
+                bottomSheetManager.hide()
+                onEvent(LoginEvent.OnForgotPasswordFlowCancel)
+            }
+        )
+    }
 }
 
 @Composable
@@ -120,9 +159,6 @@ private fun LoginScreen(
     }
 
     Box(modifier = modifier) {
-
-        // Background subtle gradient
-        // (MaterialTheme background automatically light/dark handle karta hai)
 
         // Snackbar
         SnackbarHost(
@@ -206,7 +242,7 @@ private fun LoginScreen(
                             .fillMaxWidth()
                             .padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
 
                         // Email
@@ -260,8 +296,23 @@ private fun LoginScreen(
                             shape = MaterialTheme.shapes.medium,
                             modifier = Modifier.fillMaxWidth()
                         )
-
-                        Spacer(modifier = Modifier.height(8.dp))
+                        // Forgot Password
+                        TextButton(
+                            onClick = {
+                                onEvent(LoginEvent.OnForgotPasswordClick)
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                Text(
+                                    text = "Forgot Password?",
+                                    color = Color.Red
+                                )
+                            }
+                        }
 
                         // Login Button
                         Button(
@@ -295,17 +346,149 @@ private fun LoginScreen(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = "Account nahi hai? ",
+                                text = "Don't have and account? ",
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                             )
                             Text(
-                                text = "Register karo",
+                                text = "Register here",
                                 color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.SemiBold
                             )
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ForgotPasswordEmail(
+    onEvent: (LoginEvent) -> Unit,
+    state: LoginState
+) {
+    OutlinedTextField(
+        value = state.forgotPasswordEmail,
+        onValueChange = { onEvent(LoginEvent.OnForgotPasswordEmailChange(it)) },
+        label = { Text("Email") },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Email,
+            imeAction = ImeAction.Next
+        ),
+        shape = MaterialTheme.shapes.medium,
+        modifier = Modifier.fillMaxWidth()
+    )
+    Spacer(modifier = Modifier.height(10.dp))
+    Button(
+        onClick = { onEvent(LoginEvent.OnSubmitEmail) },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
+            Text(text = "Submit")
+            Spacer(modifier = Modifier.weight(1f))
+            if (state.sendingOtp) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp)
+                )
+            } else {
+                Icon(
+                    imageVector = FeatherIcons.ArrowRight,
+                    contentDescription = "next icon",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ForgotPasswordOTP(
+    onEvent: (LoginEvent) -> Unit,
+    state: LoginState
+) {
+    OutlinedTextField(
+        value = state.forgotPasswordOTP,
+        onValueChange = { onEvent(LoginEvent.OnForgotPasswordOTPChange(it)) },
+        label = { Text("OTP") },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Next
+        ),
+        shape = MaterialTheme.shapes.medium,
+        modifier = Modifier.fillMaxWidth()
+    )
+    Spacer(modifier = Modifier.height(10.dp))
+    Button(
+        onClick = { onEvent(LoginEvent.OnSubmitOTP) },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Spacer(modifier = Modifier.weight(1f))
+        Text(text = "Submit")
+        Spacer(modifier = Modifier.weight(1f))
+        Icon(
+            imageVector = FeatherIcons.ArrowRight,
+            contentDescription = "next icon",
+            modifier = Modifier.size(20.dp)
+        )
+    }
+}
+
+@Composable
+private fun ForgotPasswordPassword(
+    onEvent: (LoginEvent) -> Unit,
+    state: LoginState
+) {
+    OutlinedTextField(
+        value = state.forgotPasswordPassword,
+        onValueChange = { onEvent(LoginEvent.OnForgotPasswordPasswordChange(it)) },
+        label = { Text("New Password") },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Password,
+            imeAction = ImeAction.Next
+        ),
+        shape = MaterialTheme.shapes.medium,
+        modifier = Modifier.fillMaxWidth()
+    )
+    Spacer(modifier = Modifier.height(10.dp))
+    OutlinedTextField(
+        value = state.forgotPasswordConfirmPassword,
+        onValueChange = { onEvent(LoginEvent.OnForgotPasswordConfirmPasswordChange(it)) },
+        label = { Text("New Password") },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Password,
+            imeAction = ImeAction.Next
+        ),
+        shape = MaterialTheme.shapes.medium,
+        modifier = Modifier.fillMaxWidth()
+    )
+    Spacer(modifier = Modifier.height(10.dp))
+    Button(
+        onClick = { onEvent(LoginEvent.OnSubmitPassword) },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
+            Text(text = "Submit")
+            Spacer(modifier = Modifier.weight(1f))
+            if (state.changingPassword) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp)
+                )
+            } else {
+                Icon(
+                    imageVector = FeatherIcons.ArrowRight,
+                    contentDescription = "next icon",
+                    modifier = Modifier.size(20.dp)
+                )
             }
         }
     }
