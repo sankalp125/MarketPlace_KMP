@@ -57,6 +57,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sankalp.marketplace.ui.component.UniversalBottomSheet
+import com.sankalp.marketplace.ui.theme.AppTheme
 import com.sankalp.marketplace.utils.WindowSize
 import com.sankalp.marketplace.utils.getWindowSize
 import com.sankalp.marketplace.utils.rememberBottomSheetManager
@@ -86,7 +87,6 @@ fun LoginRoot(
                 is LoginEffect.ShowMessage -> {
                     snackBarHostState.showSnackbar(effect.message)
                 }
-
                 is LoginEffect.NavigateToHome -> onNavigateToHome()
                 is LoginEffect.NavigateToRegister -> onNavigateToRegister()
                 is LoginEffect.ShowBottomSheet -> {
@@ -326,17 +326,26 @@ private fun LoginScreen(
                             enabled = !state.loggingIn,
                             shape = MaterialTheme.shapes.medium
                         ) {
-                            if (state.loggingIn) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(24.dp),
-                                    color = MaterialTheme.colorScheme.onPrimary,
-                                    strokeWidth = 2.dp
-                                )
-                            } else {
+                            Row(modifier = Modifier.fillMaxWidth()){
+                                Spacer(modifier = Modifier.weight(1f))
                                 Text(
                                     text = "Login",
                                     style = MaterialTheme.typography.titleMedium
                                 )
+                                Spacer(modifier = Modifier.weight(1f))
+                                if (state.loggingIn) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(24.dp),
+                                        color = MaterialTheme.colorScheme.onPrimary,
+                                        strokeWidth = 2.dp
+                                    )
+                                } else {
+                                    Icon(
+                                        imageVector = FeatherIcons.ArrowRight,
+                                        contentDescription = "next icon",
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
                             }
                         }
 
@@ -497,7 +506,7 @@ private fun ForgotPasswordPassword(
 @Preview(showBackground = true)
 @Composable
 private fun Preview() {
-    MaterialTheme {
+    AppTheme {
         LoginScreen(
             modifier = Modifier.fillMaxSize(),
             state = LoginState(),

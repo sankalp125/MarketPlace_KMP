@@ -41,6 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
+import com.sankalp.marketplace.ui.theme.AppTheme
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -241,7 +242,7 @@ private fun Button(
 @Preview(showBackground = true)
 @Composable
 private fun Preview(){
-    MaterialTheme {
+    AppTheme {
         OnBoardScreen(
             modifier = Modifier.fillMaxSize(),
             OnBoardState(),

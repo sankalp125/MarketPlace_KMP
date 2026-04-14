@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -20,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.sankalp.marketplace.ui.theme.AppTheme
 import marketplaceapp.composeapp.generated.resources.Res
 import marketplaceapp.composeapp.generated.resources.jmp_logo
 import org.jetbrains.compose.resources.painterResource
@@ -75,7 +75,7 @@ private fun SplashScreen(
 @Preview(showBackground = true)
 @Composable
 private fun Preview(){
-    MaterialTheme{
+    AppTheme{
         SplashScreen(
             modifier = Modifier.fillMaxSize()
         )
