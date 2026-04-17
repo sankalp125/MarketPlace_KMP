@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.sankalp.marketplace.ui.login.LoginRoot
 import com.sankalp.marketplace.ui.on_board.OnBoardRoot
+import com.sankalp.marketplace.ui.register.RegisterRoot
 import com.sankalp.marketplace.ui.splash.SplashRoot
 
 
@@ -40,12 +41,20 @@ fun AppNavGraph(
         }
         composable(Screen.Login.route){
             LoginRoot(
-                onNavigateToHome = {},
-                onNavigateToRegister = {}
+                onNavigateToDashBoard = {},
+                onNavigateToRegister = {
+                    navController.navigate(Screen.Register.route){
+                        popUpTo(Screen.Login.route) { inclusive = false }
+                    }
+                }
             )
         }
         composable(Screen.Register.route){
-            // design register here
+            RegisterRoot(
+                onNavigateToLogin = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }

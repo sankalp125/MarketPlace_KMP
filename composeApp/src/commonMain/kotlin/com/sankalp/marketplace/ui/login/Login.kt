@@ -72,7 +72,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun LoginRoot(
-    onNavigateToHome: () -> Unit,
+    onNavigateToDashBoard: () -> Unit,
     onNavigateToRegister: () -> Unit
 ) {
     val viewModel = koinViewModel<LoginVm>()
@@ -87,7 +87,7 @@ fun LoginRoot(
                 is LoginEffect.ShowMessage -> {
                     snackBarHostState.showSnackbar(effect.message)
                 }
-                is LoginEffect.NavigateToHome -> onNavigateToHome()
+                is LoginEffect.NavigateToHome -> onNavigateToDashBoard()
                 is LoginEffect.NavigateToRegister -> onNavigateToRegister()
                 is LoginEffect.ShowBottomSheet -> {
                     bottomSheetManager.show {

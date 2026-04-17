@@ -9,5 +9,9 @@
 	</dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+    <key>NSCameraUsageDescription</key>
+    <string>Camera access is required for uploading pictures like profile picture and product pictures</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Photo library access is required for uploading pictures like profile picture and product pictures</string>
 </dict>
 </plist>

@@ -5,6 +5,7 @@ import com.sankalp.marketplace.data.api.createHttpClient
 import com.sankalp.marketplace.data.repository.AuthRepository
 import com.sankalp.marketplace.ui.login.LoginVm
 import com.sankalp.marketplace.ui.on_board.OnBoardVm
+import com.sankalp.marketplace.ui.register.RegisterVm
 import com.sankalp.marketplace.ui.splash.SplashVm
 import com.sankalp.marketplace.utils.TokenStorage
 import org.koin.core.module.dsl.singleOf
@@ -18,4 +19,5 @@ val appModule = module {
     singleOf(::OnBoardVm)
     singleOf(::AuthRepository)
     singleOf(::LoginVm)
+    singleOf(::RegisterVm)
 }
