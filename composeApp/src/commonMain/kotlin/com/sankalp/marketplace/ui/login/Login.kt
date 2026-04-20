@@ -160,14 +160,6 @@ private fun LoginScreen(
 
     Box(modifier = modifier) {
 
-        // Snackbar
-        SnackbarHost(
-            hostState = snackBarHostState,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .windowInsetsPadding(WindowInsets.navigationBars)
-        )
-
         // Content
         Column(
             modifier = Modifier
@@ -368,6 +360,13 @@ private fun LoginScreen(
                 }
             }
         }
+        // Snackbar
+        SnackbarHost(
+            hostState = snackBarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .windowInsetsPadding(WindowInsets.navigationBars)
+        )
     }
 }
 

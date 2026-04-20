@@ -1,5 +1,7 @@
 package com.sankalp.marketplace.data.api
 
+import com.sankalp.marketplace.data.models.CityResponse
+import com.sankalp.marketplace.data.models.CountryResponse
 import com.sankalp.marketplace.data.models.ErrorResponse
 import com.sankalp.marketplace.data.models.ForgotPasswordRequest
 import com.sankalp.marketplace.data.models.ForgotPasswordResponse
@@ -7,8 +9,10 @@ import com.sankalp.marketplace.data.models.LoginRequest
 import com.sankalp.marketplace.data.models.LoginResponse
 import com.sankalp.marketplace.data.models.PasswordResetRequest
 import com.sankalp.marketplace.data.models.PasswordResetResponse
+import com.sankalp.marketplace.data.models.StatesResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
@@ -16,24 +20,38 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
 import kotlinx.serialization.json.Json
 
-class MarketPlaceApi(private val client: HttpClient){
+class MarketPlaceApi(private val client: HttpClient) {
     suspend fun login(
         request: LoginRequest
-    ) : NetworkResult<LoginResponse> = safeApiCall {
+    ): NetworkResult<LoginResponse> = safeApiCall {
         client.post("normal/login") { setBody(request) }
     }
 
     suspend fun requestForgetPassword(
         request: ForgotPasswordRequest
-    ) : NetworkResult<ForgotPasswordResponse> = safeApiCall {
+    ): NetworkResult<ForgotPasswordResponse> = safeApiCall {
         client.post("normal/request-password-reset") { setBody(request) }
     }
 
     suspend fun requestPasswordReset(
-        request : PasswordResetRequest
-    ) : NetworkResult<PasswordResetResponse> = safeApiCall {
+        request: PasswordResetRequest
+    ): NetworkResult<PasswordResetResponse> = safeApiCall {
         client.post("normal/reset-password") { setBody(request) }
     }
+
+    suspend fun requestCountriesList(): NetworkResult<List<CountryResponse>> = safeApiCall {
+        client.get("normal/countries")
+    }
+
+    suspend fun requestStatesList(countryCode: String): NetworkResult<List<StatesResponse>> =
+        safeApiCall {
+            client.get("normal/states/$countryCode")
+        }
+
+    suspend fun requestCitiesList(stateCode: String): NetworkResult<List<CityResponse>> =
+        safeApiCall {
+            client.get("normal/cities/$stateCode")
+        }
 }
 
 suspend inline fun <reified T> safeApiCall(
@@ -53,7 +71,7 @@ suspend inline fun <reified T> safeApiCall(
             }
             NetworkResult.Error.GeneralError(
                 message = errorResponse?.error ?: response.status.description,
-                code    = response.status.value
+                code = response.status.value
             )
         }
     } catch (e: Exception) {

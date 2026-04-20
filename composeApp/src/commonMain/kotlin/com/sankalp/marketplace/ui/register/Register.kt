@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,15 +21,20 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -43,11 +49,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import com.sankalp.marketplace.ui.component.DialogHost
+import com.sankalp.marketplace.ui.component.DropdownField
 import com.sankalp.marketplace.ui.component.ImagePickerDialog
 import com.sankalp.marketplace.ui.component.ImagePickerSheet
 import com.sankalp.marketplace.ui.component.UniversalBottomSheet
@@ -58,9 +69,12 @@ import com.sankalp.marketplace.utils.rememberBottomSheetManager
 import com.sankalp.marketplace.utils.rememberDialogManager
 import com.sankalp.marketplace.utils.rememberImagePicker
 import compose.icons.FeatherIcons
+import compose.icons.feathericons.ArrowRight
 import compose.icons.feathericons.Camera
 import compose.icons.feathericons.User
 import marketplaceapp.composeapp.generated.resources.Res
+import marketplaceapp.composeapp.generated.resources.ic_visibility
+import marketplaceapp.composeapp.generated.resources.ic_visibility_off
 import marketplaceapp.composeapp.generated.resources.jmp_logo
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -89,6 +103,9 @@ fun RegisterRoot(
     LaunchedEffect(Unit){
         viewModel.effect.collect { effect ->
             when (effect) {
+                is RegisterEffect.ShowMessage -> {
+                    snackBarHostState.showSnackbar(effect.message)
+                }
                 is RegisterEffect.NavigateToLogin -> onNavigateToLogin()
                 is RegisterEffect.OpenBottomSheet -> {
                     if (isDesktop){
@@ -170,14 +187,6 @@ private fun RegisterScreen(
         WindowSize.Expanded -> 150.dp
     }
     Box(modifier = modifier) {
-
-        // Snackbar
-        SnackbarHost(
-            hostState = snackBarHostState,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .windowInsetsPadding(WindowInsets.navigationBars)
-        )
 
         // Content
         Column(
@@ -294,10 +303,158 @@ private fun RegisterScreen(
                                 )
                             }
                         }
+
+                        OutlinedTextField(
+                            value = state.name,
+                            onValueChange = { onEvent(RegisterEvent.OnUserNameChange(it)) },
+                            label = { Text("Name") },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Next
+                            ),
+                            shape = MaterialTheme.shapes.medium,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = state.email,
+                            onValueChange = { onEvent(RegisterEvent.OnEmailChange(it)) },
+                            label = { Text("Email") },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Email,
+                                imeAction = ImeAction.Next
+                            ),
+                            shape = MaterialTheme.shapes.medium,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = state.password,
+                            onValueChange = { onEvent(RegisterEvent.OnPasswordChange(it)) },
+                            label = { Text("Password") },
+                            singleLine = true,
+                            visualTransformation = if (state.isPasswordVisible) {
+                                VisualTransformation.None
+                            } else {
+                                PasswordVisualTransformation()
+                            },
+                            trailingIcon = {
+                                IconButton(
+                                    onClick = { onEvent(RegisterEvent.OnPasswordVisibilityToggle) }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(
+                                            if (state.isPasswordVisible) Res.drawable.ic_visibility
+                                            else Res.drawable.ic_visibility_off
+                                        ),
+                                        contentDescription = "Password Toggle"
+                                    )
+                                }
+                            },
+                            shape = MaterialTheme.shapes.medium,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = state.confirmPassword,
+                            onValueChange = { onEvent(RegisterEvent.OnConfirmPasswordChange(it)) },
+                            label = { Text("Confirm Password") },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Password,
+                                imeAction = ImeAction.Next
+                            ),
+                            shape = MaterialTheme.shapes.medium,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        DropdownField(
+                            label = "Country",
+                            items = state.countries,
+                            selectedItem = state.selectedCountry,
+                            itemLabel = { it.countryName },
+                            onSelect = {
+                                onEvent(RegisterEvent.OnCountryChange(it))
+                            },
+                            loading = state.loadingCountries,
+                        )
+                        DropdownField(
+                            label = "State",
+                            items = state.states,
+                            selectedItem = state.selectedState,
+                            itemLabel = { it.stateName },
+                            onSelect = {
+                                onEvent(RegisterEvent.OnStateChange(it))
+                            },
+                            loading = state.loadingStates,
+                        )
+                        DropdownField(
+                            label = "City",
+                            items = state.cities,
+                            selectedItem = state.selectedCity,
+                            itemLabel = { it.cityName },
+                            onSelect = {
+                                onEvent(RegisterEvent.OnCityChange(it))
+                            },
+                            loading = state.loadingCities,
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Button(
+                            onClick = {
+                                keyboardController?.hide()
+                                onEvent(RegisterEvent.OnRegisterClick)
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(52.dp),
+                            enabled = !state.isRegistering,
+                            shape = MaterialTheme.shapes.medium
+                        ){
+                            Row(modifier = Modifier.fillMaxWidth()){
+                                Spacer(modifier = Modifier.weight(1f))
+                                Text(
+                                    text = "Register",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                                Spacer(modifier = Modifier.weight(1f))
+                                if (state.isRegistering) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(24.dp),
+                                    )
+                                }else{
+                                    Icon(
+                                        imageVector = FeatherIcons.ArrowRight,
+                                        contentDescription = "next icon",
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                            }
+                        }
+                        TextButton(
+                            onClick = { onEvent(RegisterEvent.OnBackClick) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "Already have an account? ",
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
+                            Text(
+                                text = "Login",
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     }
                 }
             }
         }
+        // Snackbar
+        SnackbarHost(
+            hostState = snackBarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .windowInsetsPadding(WindowInsets.navigationBars)
+        )
     }
 }
 

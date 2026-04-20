@@ -69,3 +69,27 @@ data class PasswordResetResponse(
     val message: String
 )
 // endregion
+
+//region country response
+@Serializable
+data class CountryResponse(
+    val countryId : String,
+    val countryName : String
+)
+//endregion
+
+// region state response
+@Serializable
+data class StatesResponse(
+    val stateId : String,
+    val stateName : String
+)
+//endregion
+
+// region city response
+@Serializable
+data class CityResponse(
+    val cityId : String,
+    val cityName : String
+)
+//endregion

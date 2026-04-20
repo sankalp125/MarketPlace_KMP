@@ -43,12 +43,11 @@ fun AppNavGraph(
             LoginRoot(
                 onNavigateToDashBoard = {},
                 onNavigateToRegister = {
-                    navController.navigate(Screen.Register.route){
-                        popUpTo(Screen.Login.route) { inclusive = false }
-                    }
+                    navController.navigate(Screen.Register.route)
                 }
             )
         }
+
         composable(Screen.Register.route){
             RegisterRoot(
                 onNavigateToLogin = {

@@ -2,12 +2,15 @@ package com.sankalp.marketplace.data.repository
 
 import com.sankalp.marketplace.data.api.MarketPlaceApi
 import com.sankalp.marketplace.data.api.NetworkResult
+import com.sankalp.marketplace.data.models.CityResponse
+import com.sankalp.marketplace.data.models.CountryResponse
 import com.sankalp.marketplace.data.models.ForgotPasswordRequest
 import com.sankalp.marketplace.data.models.ForgotPasswordResponse
 import com.sankalp.marketplace.data.models.LoginRequest
 import com.sankalp.marketplace.data.models.LoginResponse
 import com.sankalp.marketplace.data.models.PasswordResetRequest
 import com.sankalp.marketplace.data.models.PasswordResetResponse
+import com.sankalp.marketplace.data.models.StatesResponse
 import com.sankalp.marketplace.utils.TokenStorage
 
 class AuthRepository(
@@ -47,6 +50,21 @@ class AuthRepository(
                 newPassword = newPassword
             )
         )
+        return result
+    }
+
+    suspend fun requestCountries() : NetworkResult<List<CountryResponse>> {
+        val result = api.requestCountriesList()
+        return result
+    }
+
+    suspend fun requestStates(countryCode : String) : NetworkResult<List<StatesResponse>> {
+        val result = api.requestStatesList(countryCode)
+        return result
+    }
+
+    suspend fun requestCities(stateCode : String) : NetworkResult<List<CityResponse>> {
+        val result = api.requestCitiesList(stateCode)
         return result
     }
 }
