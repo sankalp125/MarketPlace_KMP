@@ -7,8 +7,10 @@ import com.sankalp.marketplace.data.models.ForgotPasswordRequest
 import com.sankalp.marketplace.data.models.ForgotPasswordResponse
 import com.sankalp.marketplace.data.models.LoginRequest
 import com.sankalp.marketplace.data.models.LoginResponse
+import com.sankalp.marketplace.data.models.MultipartRequest
 import com.sankalp.marketplace.data.models.PasswordResetRequest
 import com.sankalp.marketplace.data.models.PasswordResetResponse
+import com.sankalp.marketplace.data.models.RegisterResponse
 import com.sankalp.marketplace.data.models.StatesResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -52,6 +54,14 @@ class MarketPlaceApi(private val client: HttpClient) {
         safeApiCall {
             client.get("normal/cities/$stateCode")
         }
+
+    suspend fun registerUser(
+        request : MultipartRequest
+    ) : NetworkResult<RegisterResponse> = safeApiCall {
+        client.post("normal/register") {
+            setBody(MultipartHelper.build(request))
+        }
+    }
 }
 
 suspend inline fun <reified T> safeApiCall(

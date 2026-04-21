@@ -8,8 +8,11 @@ import com.sankalp.marketplace.data.models.ForgotPasswordRequest
 import com.sankalp.marketplace.data.models.ForgotPasswordResponse
 import com.sankalp.marketplace.data.models.LoginRequest
 import com.sankalp.marketplace.data.models.LoginResponse
+import com.sankalp.marketplace.data.models.MultipartFile
+import com.sankalp.marketplace.data.models.MultipartRequest
 import com.sankalp.marketplace.data.models.PasswordResetRequest
 import com.sankalp.marketplace.data.models.PasswordResetResponse
+import com.sankalp.marketplace.data.models.RegisterResponse
 import com.sankalp.marketplace.data.models.StatesResponse
 import com.sankalp.marketplace.utils.TokenStorage
 
@@ -66,5 +69,44 @@ class AuthRepository(
     suspend fun requestCities(stateCode : String) : NetworkResult<List<CityResponse>> {
         val result = api.requestCitiesList(stateCode)
         return result
+    }
+
+    suspend fun registerUser(
+        name: String,
+        email: String,
+        password: String,
+        mobileNo: String,
+        countryCode: String,
+        stateCode: String,
+        cityCode: String,
+        image: String? = null
+    ): NetworkResult<RegisterResponse> {
+
+        val formFields = buildMap {
+            put("name", name)
+            put("email", email)
+            put("password", password)
+            put("mobileNo", mobileNo)
+            put("country", countryCode)
+            put("state", stateCode)
+            put("city", cityCode)
+        }
+
+        val files = image?.let {
+            listOf(
+                MultipartFile(
+                    key = "photo",
+                    filePath = it,
+                    fileName = "profile_image.jpg"
+                )
+            )
+        }.orEmpty()
+
+        return api.registerUser(
+            MultipartRequest(
+                formFields = formFields,
+                files = files
+            )
+        )
     }
 }

@@ -366,6 +366,18 @@ private fun RegisterScreen(
                             shape = MaterialTheme.shapes.medium,
                             modifier = Modifier.fillMaxWidth()
                         )
+                        OutlinedTextField(
+                            value = state.mobileNumber,
+                            onValueChange = { onEvent(RegisterEvent.OnMobileNumberChange(it)) },
+                            label = { Text("Mobile Number") },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Next
+                            ),
+                            shape = MaterialTheme.shapes.medium,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                         DropdownField(
                             label = "Country",
                             items = state.countries,

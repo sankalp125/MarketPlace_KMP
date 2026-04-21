@@ -115,7 +115,7 @@ class RegisterVm(
                 }
             }
             is RegisterEvent.OnRegisterClick -> {
-                // TODO : Register user
+                registerUser()
             }
         }
     }
@@ -211,6 +211,76 @@ class RegisterVm(
                         loadingCities = false
                     )
                 }
+            }
+        }
+    }
+
+    private fun registerUser(){
+        viewModelScope.launch {
+            if (_state.value.name.isBlank()){
+                _effect.send(RegisterEffect.ShowMessage("Name required"))
+                return@launch
+            }
+            if (_state.value.email.isBlank()){
+                _effect.send(RegisterEffect.ShowMessage("Email required"))
+                return@launch
+            }
+            if (_state.value.password.isBlank()){
+                _effect.send(RegisterEffect.ShowMessage("Password required"))
+                return@launch
+            }
+            if (_state.value.confirmPassword.isBlank()){
+                _effect.send(RegisterEffect.ShowMessage("Confirm Password required"))
+                return@launch
+            }
+            if (_state.value.mobileNumber.isBlank()){
+                _effect.send(RegisterEffect.ShowMessage("Mobile Number required"))
+                return@launch
+            }
+            if (_state.value.selectedCountry == null){
+                _effect.send(RegisterEffect.ShowMessage("Country required"))
+                return@launch
+            }
+            if (_state.value.selectedState == null){
+                _effect.send(RegisterEffect.ShowMessage("State required"))
+                return@launch
+            }
+            if (_state.value.selectedCity == null){
+                _effect.send(RegisterEffect.ShowMessage("City required"))
+                return@launch
+            }
+            if (_state.value.password != _state.value.confirmPassword){
+                _effect.send(RegisterEffect.ShowMessage("Password and Confirm Password must be same"))
+                return@launch
+            }
+            _state.update { it.copy(isRegistering = true) }
+            try {
+                when(val result = authRepo.registerUser(
+                    _state.value.name,
+                    _state.value.email,
+                    _state.value.password,
+                    _state.value.mobileNumber,
+                    _state.value.selectedCountry?.countryId ?: "",
+                    _state.value.selectedState?.stateId ?: "",
+                    _state.value.selectedCity?.cityId ?: "",
+                    _state.value.selectedImage
+                )){
+                    is NetworkResult.Success -> {
+                        _effect.send(RegisterEffect.ShowMessage(result.data.message))
+                        _effect.send(RegisterEffect.NavigateToLogin)
+                    }
+                    is NetworkResult.Error.GeneralError -> {
+                        _effect.send(RegisterEffect.ShowMessage(result.message))
+                    }
+                    is NetworkResult.Error.NetworkError -> {
+                        _effect.send(RegisterEffect.ShowMessage("Please check your internet connection!"))
+                    }
+                    is NetworkResult.Loading -> Unit
+                }
+            }catch (e : Exception){
+                _effect.send(RegisterEffect.ShowMessage(e.message ?: "Something went wrong!"))
+            }finally {
+                _state.update { it.copy(isRegistering = false) }
             }
         }
     }

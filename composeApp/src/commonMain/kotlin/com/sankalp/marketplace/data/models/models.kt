@@ -93,3 +93,24 @@ data class CityResponse(
     val cityName : String
 )
 //endregion
+
+// region Multipart Request
+data class MultipartRequest(
+    val formFields: Map<String, String> = emptyMap(),
+    val files: List<MultipartFile> = emptyList()
+)
+
+data class MultipartFile(
+    val key: String,
+    val filePath: String,
+    val fileName: String,
+    val mimeType: String = "image/jpeg"
+)
+//endregion
+
+// region Register Response
+@Serializable
+data class RegisterResponse(
+    val message: String
+)
+//endregion
