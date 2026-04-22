@@ -55,5 +55,12 @@ fun AppNavGraph(
                 }
             )
         }
+        composable(Screen.Home.route){
+
+        }
+        composable(Screen.ProductDetail.route) {
+
+        }
+        composable(Screen.EditProduct.route) {  }
     }
 }

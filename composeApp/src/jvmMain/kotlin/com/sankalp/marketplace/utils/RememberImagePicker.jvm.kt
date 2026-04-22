@@ -5,7 +5,5 @@ import androidx.compose.runtime.remember
 
 @Composable
 actual fun rememberImagePicker(): ImagePicker {
-    return remember {
-        DesktopImagePicker()
-    }
+    return remember { DesktopImagePicker() }
 }
