@@ -3,6 +3,9 @@ package com.sankalp.marketplace.di
 import com.sankalp.marketplace.data.api.MarketPlaceApi
 import com.sankalp.marketplace.data.api.createHttpClient
 import com.sankalp.marketplace.data.repository.AuthRepository
+import com.sankalp.marketplace.data.repository.ProductRepo
+import com.sankalp.marketplace.data.repository.UserRepository
+import com.sankalp.marketplace.ui.dashboard.DashBoardVm
 import com.sankalp.marketplace.ui.login.LoginVm
 import com.sankalp.marketplace.ui.on_board.OnBoardVm
 import com.sankalp.marketplace.ui.register.RegisterVm
@@ -19,10 +22,13 @@ val appModule = module {
 
     // Repository
     singleOf(::AuthRepository)
+    singleOf(::UserRepository)
+    singleOf(::ProductRepo)
 
     // viewModel
     viewModelOf(::SplashVm)
     viewModelOf(::OnBoardVm)
     viewModelOf(::LoginVm)
     viewModelOf(::RegisterVm)
+    viewModelOf(::DashBoardVm)
 }

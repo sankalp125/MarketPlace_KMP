@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.sankalp.marketplace.ui.dashboard.DashBoardRoot
 import com.sankalp.marketplace.ui.login.LoginRoot
 import com.sankalp.marketplace.ui.on_board.OnBoardRoot
 import com.sankalp.marketplace.ui.register.RegisterRoot
@@ -22,7 +23,9 @@ fun AppNavGraph(
         composable(Screen.Splash.route){
             // splash screen
             SplashRoot(
-                onNavigateToDashBoard = {},
+                onNavigateToDashBoard = {navController.navigate(Screen.Home.route){
+                    popUpTo(Screen.Splash.route) { inclusive = true }
+                }},
                 onNavigateToOnBoard = {
                     navController.navigate(Screen.OnBoard.route){
                         popUpTo(Screen.Splash.route) { inclusive = true }
@@ -41,7 +44,11 @@ fun AppNavGraph(
         }
         composable(Screen.Login.route){
             LoginRoot(
-                onNavigateToDashBoard = {},
+                onNavigateToDashBoard = {
+                    navController.navigate(Screen.Home.route){
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                },
                 onNavigateToRegister = {
                     navController.navigate(Screen.Register.route)
                 }
@@ -56,7 +63,11 @@ fun AppNavGraph(
             )
         }
         composable(Screen.Home.route){
-
+            DashBoardRoot(
+                onaNavigateToLogin = {},
+                onNavigateToProductDetails = {},
+                onNavigateToEditProduct = {}
+            )
         }
         composable(Screen.ProductDetail.route) {
 

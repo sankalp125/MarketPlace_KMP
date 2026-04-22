@@ -119,7 +119,7 @@ class LoginVm(
                 }
             }
             is LoginEvent.OnSubmitPassword -> {
-                // TODO :- Call Reset Password API
+                resetPassword()
             }
         }
     }
