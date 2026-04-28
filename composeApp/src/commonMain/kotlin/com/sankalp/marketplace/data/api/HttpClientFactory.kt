@@ -72,7 +72,7 @@ fun createHttpClient(
                         return@refreshTokens null
                     }
                     try {
-                        val response = client.post("refresh-token"){
+                        val response = client.post("normal/refresh-token"){
                             markAsRefreshTokenRequest()
                             setBody(RefreshTokenRequest(refreshToken))
                         }

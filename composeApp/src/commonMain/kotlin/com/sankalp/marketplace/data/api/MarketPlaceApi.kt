@@ -1,5 +1,6 @@
 package com.sankalp.marketplace.data.api
 
+import com.sankalp.marketplace.data.models.CategoryResponse
 import com.sankalp.marketplace.data.models.CityResponse
 import com.sankalp.marketplace.data.models.CountryResponse
 import com.sankalp.marketplace.data.models.ErrorResponse
@@ -10,6 +11,7 @@ import com.sankalp.marketplace.data.models.LoginResponse
 import com.sankalp.marketplace.data.models.MultipartRequest
 import com.sankalp.marketplace.data.models.PasswordResetRequest
 import com.sankalp.marketplace.data.models.PasswordResetResponse
+import com.sankalp.marketplace.data.models.ProductListResponse
 import com.sankalp.marketplace.data.models.RegisterResponse
 import com.sankalp.marketplace.data.models.StatesResponse
 import io.ktor.client.HttpClient
@@ -61,6 +63,14 @@ class MarketPlaceApi(private val client: HttpClient) {
         client.post("normal/register") {
             setBody(MultipartHelper.build(request))
         }
+    }
+
+    suspend fun getCategories() : NetworkResult<List<CategoryResponse>> = safeApiCall {
+        client.get("normal/get_categories")
+    }
+
+    suspend fun getProductsList() : NetworkResult<List<ProductListResponse>> = safeApiCall {
+        client.get("protected/product-list")
     }
 }
 

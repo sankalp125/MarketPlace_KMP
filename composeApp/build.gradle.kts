@@ -77,6 +77,8 @@ kotlin {
             implementation(libs.window.size)
             // compose icons
             implementation(libs.composeIcons.feather)
+            // shimmer
+            implementation(libs.compose.shimmer)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

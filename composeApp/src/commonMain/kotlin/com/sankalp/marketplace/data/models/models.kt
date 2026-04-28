@@ -114,3 +114,24 @@ data class RegisterResponse(
     val message: String
 )
 //endregion
+
+//region Category Response
+@Serializable
+data class CategoryResponse(
+    val categoryId: String,
+    val categoryName: String
+)
+//endregion
+
+// region Products Response
+@Serializable
+data class ProductListResponse(
+    val productId: String,
+    val productName : String,
+    val productDesc : String,
+    val productCategory : String,
+    val productCity : String,
+    val productPrice : String,
+    val pictureUrl : String
+)
+// endregion
