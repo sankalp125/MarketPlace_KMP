@@ -1,5 +1,6 @@
 package com.sankalp.marketplace.ui.dashboard
 
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -39,9 +41,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,6 +62,7 @@ import com.sankalp.marketplace.utils.getWindowSize
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Search
 import compose.icons.feathericons.X
+import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -226,10 +232,37 @@ private fun CategoryFilterRow(
     selectedCategory: CategoryResponse?,
     onCategorySelect: (CategoryResponse) -> Unit
 ) {
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+    val windowSize = getWindowSize()
+
     LazyRow(
+        state = listState,
         contentPadding = PaddingValues(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.padding(bottom = 8.dp)
+        modifier = Modifier
+            .padding(bottom = 8.dp)
+            .then(
+                // Desktop mouse wheel handling
+                if (windowSize == WindowSize.Expanded) {
+                    Modifier.pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                if (event.type == PointerEventType.Scroll) {
+                                    val scrollDelta = event.changes
+                                        .firstOrNull()
+                                        ?.scrollDelta
+                                        ?.y ?: 0f
+                                    scope.launch {
+                                        listState.scrollBy(scrollDelta * 50f)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else Modifier
+            )
     ) {
         if (isLoading) {
             items(5) {
@@ -239,7 +272,7 @@ private fun CategoryFilterRow(
                         .height(32.dp)
                         .shimmerable(
                             enabled = true,
-                            shape = RoundedCornerShape(50.dp) // Chip shape
+                            shape = RoundedCornerShape(50.dp)
                         )
                 )
             }

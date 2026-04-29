@@ -152,7 +152,6 @@ class LoginVm(
                     password = _state.value.password
                 )) {
                     is NetworkResult.Success -> {
-                        _effect.send(LoginEffect.ShowMessage("logged in successfully"))
                         _effect.send(LoginEffect.NavigateToHome)
                     }
                     is NetworkResult.Error.GeneralError -> {
