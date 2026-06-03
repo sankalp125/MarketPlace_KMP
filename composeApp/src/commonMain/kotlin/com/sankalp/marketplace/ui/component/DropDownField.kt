@@ -28,7 +28,8 @@ fun <T> DropdownField(
     itemLabel: (T) -> String,
     onSelect: (T) -> Unit,
     loading: Boolean,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -36,7 +37,8 @@ fun <T> DropdownField(
         expanded = expanded,
         onExpandedChange = {
             if (enabled && !loading) expanded = !expanded
-        }
+        },
+        modifier = modifier
     ) {
 
         OutlinedTextField(

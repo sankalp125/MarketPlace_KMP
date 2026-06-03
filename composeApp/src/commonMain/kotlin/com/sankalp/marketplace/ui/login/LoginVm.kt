@@ -107,7 +107,7 @@ class LoginVm(
                         _effect.send(LoginEffect.ShowMessage("OTP required"))
                         return@launch
                     }
-                    if (_state.value.forgotPasswordOTP.length != 6){
+                    if (_state.value.forgotPasswordOTP.length != 4){
                         _effect.send(LoginEffect.ShowMessage("Please enter a valid OTP"))
                         return@launch
                     }

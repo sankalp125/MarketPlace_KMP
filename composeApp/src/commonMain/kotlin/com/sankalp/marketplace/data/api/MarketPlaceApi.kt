@@ -72,6 +72,14 @@ class MarketPlaceApi(private val client: HttpClient) {
     suspend fun getProductsList() : NetworkResult<List<ProductListResponse>> = safeApiCall {
         client.get("protected/product-list")
     }
+
+    suspend fun addProduct(
+        request: MultipartRequest
+    ): NetworkResult<RegisterResponse> = safeApiCall {
+        client.post("protected/add-product") {
+            setBody(MultipartHelper.build(request))
+        }
+    }
 }
 
 suspend inline fun <reified T> safeApiCall(
