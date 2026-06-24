@@ -28,4 +28,14 @@ sealed interface DashBoardEvent {
     data class OnProductImagePicked(val imagePath : String) : DashBoardEvent
     data class OnProductImageDeleteRequest(val index : Int) : DashBoardEvent
     data object OnAddProductClick : DashBoardEvent
+    data class OnProfilePicPickRequest(val type : BottomSheetType) : DashBoardEvent
+    data class OnProfilePicPicked(val imagePath : String) : DashBoardEvent
+    data class OnProfileNameChange(val name : String) : DashBoardEvent
+    data class OnProfilePhoneChange(val phone : String) : DashBoardEvent
+    data class OnProfileCountryChange(val country : String) : DashBoardEvent
+    data class OnProfileStateChange(val state : String) : DashBoardEvent
+    data class OnProfileCityChange(val city : String) : DashBoardEvent
+    data object OnProfileUpdateClick : DashBoardEvent
+    data class OnMyProductClick(val prodId : String) : DashBoardEvent
+    data object OnLogoutClick : DashBoardEvent
 }

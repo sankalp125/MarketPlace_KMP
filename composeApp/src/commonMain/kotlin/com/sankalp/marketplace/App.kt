@@ -12,6 +12,7 @@ import com.sankalp.marketplace.di.platformModule
 import com.sankalp.marketplace.ui.theme.AppTheme
 import com.sankalp.marketplace.utils.AuthEvent
 import com.sankalp.marketplace.utils.AuthEventBus
+import com.sankalp.marketplace.utils.SessionManager
 import org.koin.compose.KoinApplication
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.dsl.koinConfiguration
@@ -33,6 +34,7 @@ fun App() {
                         when (event) {
                             is AuthEvent.SessionExpired,
                             is AuthEvent.LoggedOut -> {
+                                SessionManager.closeSession()
                                 navController.navigate(Screen.Login.route) {
                                     popUpTo(0) { inclusive = true }
                                 }

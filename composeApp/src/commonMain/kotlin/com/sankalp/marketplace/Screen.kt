@@ -1,11 +1,15 @@
 package com.sankalp.marketplace
 
 sealed class Screen(val route : String){
-    object Splash : Screen("splash")
-    object OnBoard : Screen("on_board")
-    object Login : Screen("login")
-    object Register : Screen("register")
-    object Home : Screen("home")
-    object ProductDetail : Screen("product_detail")
-    object EditProduct : Screen("edit_product")
+    data object Splash : Screen("splash")
+    data object OnBoard : Screen("on_board")
+    data object Login : Screen("login")
+    data object Register : Screen("register")
+    data object Home : Screen("home")
+    data object ProductDetail : Screen("product_detail/{prodId}/{isMyProduct}") {
+        fun createRoute(prodId: String, isMyProduct: Boolean) = "product_detail/$prodId/$isMyProduct"
+    }
+    data object EditProduct : Screen("edit_product/{prodId}") {
+        fun createRoute(prodId: String) = "edit_product/$prodId"
+    }
 }

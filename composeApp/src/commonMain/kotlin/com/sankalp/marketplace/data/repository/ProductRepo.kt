@@ -4,8 +4,10 @@ import com.sankalp.marketplace.data.api.MarketPlaceApi
 import com.sankalp.marketplace.data.api.NetworkResult
 import com.sankalp.marketplace.data.models.CityResponse
 import com.sankalp.marketplace.data.models.CountryResponse
+import com.sankalp.marketplace.data.models.DeleteProductPictureRequest
 import com.sankalp.marketplace.data.models.MultipartRequest
 import com.sankalp.marketplace.data.models.StatesResponse
+import com.sankalp.marketplace.data.models.UpdateProductRequest
 
 class ProductRepo(
     private val api : MarketPlaceApi
@@ -13,6 +15,11 @@ class ProductRepo(
     suspend fun getCategories() = api.getCategories()
     suspend fun getProductList() = api.getProductsList()
     suspend fun addProduct(request: MultipartRequest) = api.addProduct(request)
+    suspend fun productDetails(productId : String) = api.productDetails(productId)
+    suspend fun updateProduct(request : UpdateProductRequest) = api.updateProduct(request)
+    suspend fun addProductPictures(request : MultipartRequest) = api.addProductPictures(request)
+    suspend fun deleteProductPicture(request : DeleteProductPictureRequest) = api.deleteProductPicture(request)
+    suspend fun deleteProduct(productId : String) = api.deleteProduct(productId)
     suspend fun requestCountries() : NetworkResult<List<CountryResponse>> {
         val result = api.requestCountriesList()
         return result

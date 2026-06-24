@@ -95,7 +95,7 @@ fun ProductGridCard(
                 )
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        text = "₹${(product.productPrice).toLong()}",
+                        text = "₹${(product.productPrice).toDouble().toLong()}",
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
@@ -182,7 +182,7 @@ fun ProductListCard(
                     horizontalArrangement = Arrangement.spacedBy(30.dp)
                 ) {
                     Text(
-                        text = "₹${(product.productPrice).toLong()}",
+                        text = "₹${(product.productPrice).toDouble().toLong()}",
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold
                         ),

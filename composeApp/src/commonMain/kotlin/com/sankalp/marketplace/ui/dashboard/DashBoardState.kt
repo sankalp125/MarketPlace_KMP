@@ -3,7 +3,9 @@ package com.sankalp.marketplace.ui.dashboard
 import com.sankalp.marketplace.data.models.CategoryResponse
 import com.sankalp.marketplace.data.models.CityResponse
 import com.sankalp.marketplace.data.models.CountryResponse
+import com.sankalp.marketplace.data.models.MyProductResponse
 import com.sankalp.marketplace.data.models.ProductListResponse
+import com.sankalp.marketplace.data.models.ProfileResponse
 import com.sankalp.marketplace.data.models.StatesResponse
 
 data class DashBoardState(
@@ -33,5 +35,12 @@ data class DashBoardState(
     val productCity : CityResponse? = null,
     val productTillDate : String = "",
     val otherImages : List<String> = emptyList(),
-    val addingProduct : Boolean = false
+    val addingProduct : Boolean = false,
+    val loadingProfile : Boolean = false,
+    val profileDetails : ProfileResponse? = null,
+    val loadingMyProducts : Boolean = false,
+    val myProducts : List<MyProductResponse> = emptyList(),
+    val updatingProfile : Boolean = false,
+    val selectedProfilePic : String = "",
+    val updatingProfilePic : Boolean = false,
 )

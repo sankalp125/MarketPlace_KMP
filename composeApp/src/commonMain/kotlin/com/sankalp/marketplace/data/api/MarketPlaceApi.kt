@@ -3,21 +3,29 @@ package com.sankalp.marketplace.data.api
 import com.sankalp.marketplace.data.models.CategoryResponse
 import com.sankalp.marketplace.data.models.CityResponse
 import com.sankalp.marketplace.data.models.CountryResponse
+import com.sankalp.marketplace.data.models.DeleteProductPictureRequest
 import com.sankalp.marketplace.data.models.ErrorResponse
 import com.sankalp.marketplace.data.models.ForgotPasswordRequest
 import com.sankalp.marketplace.data.models.ForgotPasswordResponse
 import com.sankalp.marketplace.data.models.LoginRequest
 import com.sankalp.marketplace.data.models.LoginResponse
 import com.sankalp.marketplace.data.models.MultipartRequest
+import com.sankalp.marketplace.data.models.MyProductResponse
 import com.sankalp.marketplace.data.models.PasswordResetRequest
 import com.sankalp.marketplace.data.models.PasswordResetResponse
+import com.sankalp.marketplace.data.models.ProductDetailsResponse
 import com.sankalp.marketplace.data.models.ProductListResponse
+import com.sankalp.marketplace.data.models.ProfileResponse
 import com.sankalp.marketplace.data.models.RegisterResponse
 import com.sankalp.marketplace.data.models.StatesResponse
+import com.sankalp.marketplace.data.models.UpdateProductRequest
+import com.sankalp.marketplace.data.models.UpdateProfileRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
@@ -79,6 +87,51 @@ class MarketPlaceApi(private val client: HttpClient) {
         client.post("protected/add-product") {
             setBody(MultipartHelper.build(request))
         }
+    }
+    suspend fun productDetails(
+        productId : String
+    ) : NetworkResult<ProductDetailsResponse> = safeApiCall {
+        client.get("protected/product-details/$productId")
+    }
+
+    suspend fun getProfile() : NetworkResult<ProfileResponse> = safeApiCall {
+        client.get("protected/profile")
+    }
+
+    suspend fun getMyProducts() : NetworkResult<List<MyProductResponse>> = safeApiCall {
+        client.get("protected/my-products")
+    }
+
+    suspend fun updateProfile(
+        request : UpdateProfileRequest
+    ) : NetworkResult<String> = safeApiCall {
+        client.put("protected/update-profile-details") { setBody(request) }
+    }
+
+    suspend fun updateProfilePicture(
+        request : MultipartRequest
+    ) : NetworkResult<String> = safeApiCall {
+        client.put("protected/update-profile-picture") { setBody(MultipartHelper.build(request)) }
+    }
+    suspend fun updateProduct(
+        request : UpdateProductRequest
+    ) : NetworkResult<String> = safeApiCall {
+        client.put("protected/update-product") { setBody(request) }
+    }
+    suspend fun addProductPictures(
+        request : MultipartRequest
+    ) : NetworkResult<String> = safeApiCall {
+        client.put("protected/add-product-picture") { setBody(MultipartHelper.build(request)) }
+    }
+    suspend fun deleteProductPicture(
+        request: DeleteProductPictureRequest
+    ) : NetworkResult<String> = safeApiCall {
+        client.put("protected/delete-picture") { setBody(request) }
+    }
+    suspend fun deleteProduct(
+        productId : String
+    ) : NetworkResult<String> = safeApiCall {
+        client.delete("protected/delete-product/${productId}")
     }
 }
 

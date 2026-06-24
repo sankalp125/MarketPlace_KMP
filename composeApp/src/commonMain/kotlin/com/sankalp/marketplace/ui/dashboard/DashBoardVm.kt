@@ -5,8 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.sankalp.marketplace.data.api.NetworkResult
 import com.sankalp.marketplace.data.models.MultipartFile
 import com.sankalp.marketplace.data.models.MultipartRequest
+import com.sankalp.marketplace.data.models.UpdateProfileRequest
 import com.sankalp.marketplace.data.repository.ProductRepo
 import com.sankalp.marketplace.data.repository.UserRepository
+import com.sankalp.marketplace.utils.SessionManager
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,8 +38,16 @@ class DashBoardVm(
                         selectedNavItem = event.navItem
                     )
                 }
-                if (_state.value.countryList.isEmpty()){
+                if (event.navItem == NavItem.ADD_PRODUCT && _state.value.countryList.isEmpty()) {
                     getCountries()
+                }
+                if (event.navItem == NavItem.PROFILE) {
+                    if (_state.value.profileDetails == null) {
+                        getProfile()
+                    }
+                    if (_state.value.myProducts.isEmpty()) {
+                        getMyProducts()
+                    }
                 }
             }
 
@@ -67,26 +77,31 @@ class DashBoardVm(
                 }
                 filterProducts()
             }
+
             is DashBoardEvent.OnProductClick -> {
                 viewModelScope.launch {
                     _effect.send(DashBoardEffect.NavigateToProductDetails(event.prodId))
                 }
             }
+
             is DashBoardEvent.OnMainImagePickRequest -> {
                 viewModelScope.launch {
                     _effect.send(DashBoardEffect.ShowBottomSheet(event.type))
                 }
             }
+
             is DashBoardEvent.OnProductImagePickRequest -> {
                 viewModelScope.launch {
                     _effect.send(DashBoardEffect.ShowBottomSheet(event.type))
                 }
             }
+
             is DashBoardEvent.OpenImagePicker -> {
                 viewModelScope.launch {
                     _effect.send(DashBoardEffect.OpenImagePicker(event.source, event.type))
                 }
             }
+
             is DashBoardEvent.OnMainImagePicked -> {
                 _state.update {
                     it.copy(
@@ -94,6 +109,7 @@ class DashBoardVm(
                     )
                 }
             }
+
             is DashBoardEvent.OnProductImagePicked -> {
                 _state.update {
                     it.copy(
@@ -103,6 +119,7 @@ class DashBoardVm(
                     )
                 }
             }
+
             is DashBoardEvent.OnProductImageDeleteRequest -> {
                 _state.update {
                     it.copy(
@@ -112,6 +129,7 @@ class DashBoardVm(
                     )
                 }
             }
+
             is DashBoardEvent.OnProductNameChange -> {
                 _state.update {
                     it.copy(
@@ -119,6 +137,7 @@ class DashBoardVm(
                     )
                 }
             }
+
             is DashBoardEvent.OnProductDescChange -> {
                 _state.update {
                     it.copy(
@@ -126,6 +145,7 @@ class DashBoardVm(
                     )
                 }
             }
+
             is DashBoardEvent.OnProductPriceChange -> {
                 _state.update {
                     it.copy(
@@ -133,6 +153,7 @@ class DashBoardVm(
                     )
                 }
             }
+
             is DashBoardEvent.OnProductCategoryChange -> {
                 _state.update {
                     it.copy(
@@ -140,6 +161,7 @@ class DashBoardVm(
                     )
                 }
             }
+
             is DashBoardEvent.OnProductCountryChange -> {
                 _state.update {
                     it.copy(
@@ -148,6 +170,7 @@ class DashBoardVm(
                 }
                 getStates()
             }
+
             is DashBoardEvent.OnProductStateChange -> {
                 _state.update {
                     it.copy(
@@ -156,6 +179,7 @@ class DashBoardVm(
                 }
                 getCities()
             }
+
             is DashBoardEvent.OnProductCityChange -> {
                 _state.update {
                     it.copy(
@@ -163,6 +187,7 @@ class DashBoardVm(
                     )
                 }
             }
+
             is DashBoardEvent.OnProductCurrencyChange -> {
                 _state.update {
                     it.copy(
@@ -170,6 +195,7 @@ class DashBoardVm(
                     )
                 }
             }
+
             is DashBoardEvent.OnProductTillDateChange -> {
                 _state.update {
                     it.copy(
@@ -177,8 +203,92 @@ class DashBoardVm(
                     )
                 }
             }
+
             is DashBoardEvent.OnAddProductClick -> {
                 addProduct()
+            }
+
+            is DashBoardEvent.OnProfilePicPickRequest -> {
+                viewModelScope.launch {
+                    _effect.send(DashBoardEffect.ShowBottomSheet(event.type))
+                }
+            }
+
+            is DashBoardEvent.OnProfilePicPicked -> {
+                _state.update {
+                    it.copy(
+                        selectedProfilePic = event.imagePath
+                    )
+                }
+                updateProfilePicture()
+            }
+
+            is DashBoardEvent.OnProfileNameChange -> {
+                _state.update {
+                    it.copy(
+                        profileDetails = it.profileDetails?.copy(name = event.name)
+                    )
+                }
+            }
+
+            is DashBoardEvent.OnProfilePhoneChange -> {
+                _state.update {
+                    it.copy(
+                        profileDetails = it.profileDetails?.copy(mobile = event.phone)
+                    )
+                }
+            }
+
+            is DashBoardEvent.OnProfileCountryChange -> {
+                _state.update {
+                    it.copy(
+                        profileDetails = it.profileDetails?.copy(country = event.country)
+                    )
+                }
+            }
+
+            is DashBoardEvent.OnProfileStateChange -> {
+                _state.update {
+                    it.copy(
+                        profileDetails = it.profileDetails?.copy(state = event.state)
+                    )
+                }
+            }
+
+            is DashBoardEvent.OnProfileCityChange -> {
+                _state.update {
+                    it.copy(
+                        profileDetails = it.profileDetails?.copy(city = event.city)
+                    )
+                }
+            }
+
+            is DashBoardEvent.OnProfileUpdateClick -> {
+                val profile = _state.value.profileDetails
+                if (profile != null) {
+                    updateProfile(
+                        name = profile.name,
+                        email = profile.email,
+                        phone = profile.mobile,
+                        country = profile.country,
+                        state = profile.state,
+                        city = profile.city
+                    )
+                }
+            }
+
+            is DashBoardEvent.OnMyProductClick -> {
+                viewModelScope.launch {
+                    _effect.send(DashBoardEffect.NavigateToProductDetails(event.prodId, true))
+                }
+            }
+
+            is DashBoardEvent.OnLogoutClick -> {
+                viewModelScope.launch {
+                    userRepo.logOut()
+                    SessionManager.closeSession()
+                    _effect.send(DashBoardEffect.NavigateToLogin)
+                }
             }
         }
     }
@@ -317,6 +427,7 @@ class DashBoardVm(
             }
         }
     }
+
     private fun getCountries() {
         viewModelScope.launch {
             _state.update {
@@ -325,7 +436,7 @@ class DashBoardVm(
                 )
             }
             try {
-                when(val result = productRepo.requestCountries()){
+                when (val result = productRepo.requestCountries()) {
                     is NetworkResult.Success -> {
                         _state.update {
                             it.copy(
@@ -333,17 +444,20 @@ class DashBoardVm(
                             )
                         }
                     }
+
                     is NetworkResult.Error.GeneralError -> {
                         _effect.send(DashBoardEffect.ShowMessage(result.message))
                     }
+
                     is NetworkResult.Error.NetworkError -> {
                         _effect.send(DashBoardEffect.ShowMessage("Please check your internet connection!"))
                     }
+
                     is NetworkResult.Loading -> {}
                 }
-            }catch (e : Exception){
+            } catch (e: Exception) {
                 _effect.send(DashBoardEffect.ShowMessage(e.message ?: "Something went wrong!"))
-            }finally {
+            } finally {
                 _state.update {
                     it.copy(
                         loadingCountries = false
@@ -352,6 +466,7 @@ class DashBoardVm(
             }
         }
     }
+
     private fun getStates() {
         viewModelScope.launch {
             _state.update {
@@ -360,7 +475,8 @@ class DashBoardVm(
                 )
             }
             try {
-                when(val result = productRepo.requestStates(_state.value.productCountry?.countryId ?: "")){
+                when (val result =
+                    productRepo.requestStates(_state.value.productCountry?.countryId ?: "")) {
                     is NetworkResult.Success -> {
                         _state.update {
                             it.copy(
@@ -368,17 +484,20 @@ class DashBoardVm(
                             )
                         }
                     }
+
                     is NetworkResult.Error.GeneralError -> {
                         _effect.send(DashBoardEffect.ShowMessage(result.message))
                     }
+
                     is NetworkResult.Error.NetworkError -> {
                         _effect.send(DashBoardEffect.ShowMessage("Please check your internet connection!"))
                     }
+
                     is NetworkResult.Loading -> {}
                 }
-            }catch (e : Exception){
+            } catch (e: Exception) {
                 _effect.send(DashBoardEffect.ShowMessage(e.message ?: "Something went wrong!"))
-            }finally {
+            } finally {
                 _state.update {
                     it.copy(
                         loadingStates = false
@@ -387,6 +506,7 @@ class DashBoardVm(
             }
         }
     }
+
     private fun getCities() {
         viewModelScope.launch {
             _state.update {
@@ -395,7 +515,8 @@ class DashBoardVm(
                 )
             }
             try {
-                when(val result = productRepo.requestCities(_state.value.productState?.stateId ?: "")){
+                when (val result =
+                    productRepo.requestCities(_state.value.productState?.stateId ?: "")) {
                     is NetworkResult.Success -> {
                         _state.update {
                             it.copy(
@@ -403,17 +524,20 @@ class DashBoardVm(
                             )
                         }
                     }
+
                     is NetworkResult.Error.GeneralError -> {
                         _effect.send(DashBoardEffect.ShowMessage(result.message))
                     }
+
                     is NetworkResult.Error.NetworkError -> {
                         _effect.send(DashBoardEffect.ShowMessage("Please check your internet connection!"))
                     }
+
                     is NetworkResult.Loading -> {}
                 }
-            }catch (e : Exception){
+            } catch (e: Exception) {
                 _effect.send(DashBoardEffect.ShowMessage(e.message ?: "Something went wrong!"))
-            }finally {
+            } finally {
                 _state.update {
                     it.copy(
                         loadingCities = false
@@ -462,6 +586,175 @@ class DashBoardVm(
                 _state.update {
                     it.copy(
                         loadingProducts = false
+                    )
+                }
+            }
+        }
+    }
+
+    private fun getProfile() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    loadingProfile = true
+                )
+            }
+            try {
+                when (val result = userRepo.getProfile()) {
+                    is NetworkResult.Success -> {
+                        _state.update {
+                            it.copy(
+                                profileDetails = result.data
+                            )
+                        }
+                    }
+
+                    is NetworkResult.Error.GeneralError -> {
+                        _effect.send(DashBoardEffect.ShowMessage(result.message))
+                    }
+
+                    is NetworkResult.Error.NetworkError -> {
+                        _effect.send(DashBoardEffect.ShowMessage("Please check your internet connection!"))
+                    }
+
+                    is NetworkResult.Loading -> {}
+                }
+            } catch (e: Exception) {
+                _effect.send(DashBoardEffect.ShowMessage(e.message ?: "Something went wrong!"))
+            } finally {
+                _state.update {
+                    it.copy(
+                        loadingProfile = false
+                    )
+                }
+            }
+        }
+    }
+
+    private fun getMyProducts() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    loadingMyProducts = true
+                )
+            }
+            try {
+                when (val result = userRepo.getMyProducts()) {
+                    is NetworkResult.Success -> {
+                        _state.update {
+                            it.copy(
+                                myProducts = result.data
+                            )
+                        }
+                    }
+
+                    is NetworkResult.Error.GeneralError -> {
+                        _effect.send(DashBoardEffect.ShowMessage(result.message))
+                    }
+
+                    is NetworkResult.Error.NetworkError -> {
+                        _effect.send(DashBoardEffect.ShowMessage("Please check your internet connection!"))
+                    }
+
+                    is NetworkResult.Loading -> {}
+                }
+            } catch (e: Exception) {
+                _effect.send(DashBoardEffect.ShowMessage(e.message ?: "Something went wrong!"))
+            } finally {
+                _state.update {
+                    it.copy(
+                        loadingMyProducts = false
+                    )
+                }
+            }
+        }
+    }
+
+    private fun updateProfile(
+        name: String,
+        email: String,
+        phone: String,
+        country: String,
+        state: String,
+        city: String
+    ) {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    updatingProfile = true
+                )
+            }
+            try {
+                when (val result = userRepo.updateProfile(
+                    UpdateProfileRequest(
+                        name = name,
+                        email = email,
+                        mobileNo = phone,
+                        country = country,
+                        state = state,
+                        city = city
+                    )
+                )) {
+                    is NetworkResult.Success -> {
+                        _effect.send(DashBoardEffect.ShowMessage(result.data))
+                    }
+                    is NetworkResult.Error.GeneralError -> {
+                        _effect.send(DashBoardEffect.ShowMessage(result.message))
+                    }
+                    is NetworkResult.Error.NetworkError -> {
+                        _effect.send(DashBoardEffect.ShowMessage("Please check your internet connection!"))
+                    }
+                    is NetworkResult.Loading -> {}
+                }
+            }catch (e : Exception){
+                _effect.send(DashBoardEffect.ShowMessage(e.message ?: "Something went wrong!"))
+            }finally {
+                _state.update {
+                    it.copy(
+                        updatingProfile = false
+                    )
+                }
+            }
+        }
+    }
+
+    private fun updateProfilePicture(){
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    updatingProfilePic = true
+                )
+            }
+            val files = mutableListOf<MultipartFile>()
+            files.add(
+                MultipartFile(
+                    key = "photo",
+                    filePath = _state.value.selectedProfilePic,
+                    fileName = "profile_pic.jpg"
+                )
+            )
+            val request = MultipartRequest(
+                files = files
+            )
+            try {
+                when (val result = userRepo.updateProfilePicture(request)) {
+                    is NetworkResult.Success -> {
+                        _effect.send(DashBoardEffect.ShowMessage(result.data))
+                    }
+                    is NetworkResult.Error.GeneralError -> {
+                        _effect.send(DashBoardEffect.ShowMessage(result.message))
+                    }
+                    is NetworkResult.Error.NetworkError -> {
+                        _effect.send(DashBoardEffect.ShowMessage("Please check your internet connection!"))
+                    }
+                    is NetworkResult.Loading -> {}
+                }
+            }catch (e : Exception){
+                _effect.send(DashBoardEffect.ShowMessage(e.message ?: "Something went wrong!"))
+            }finally {
+                _state.update {
+                    it.copy(
+                        updatingProfilePic = false
                     )
                 }
             }

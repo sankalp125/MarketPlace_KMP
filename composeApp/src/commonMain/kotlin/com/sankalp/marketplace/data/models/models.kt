@@ -135,3 +135,80 @@ data class ProductListResponse(
     val pictureUrl : String
 )
 // endregion
+
+// region Profile Details
+@Serializable
+data class ProfileResponse(
+    val id : String,
+    val name  : String,
+    val email : String,
+    val password : String,
+    val mobile : String,
+    val country : String,
+    val state : String,
+    val city : String,
+    val photoUrl : String,
+    val createdAt : String,
+    val updatedAt : String
+)
+//endregion
+
+// region my products
+@Serializable
+data class MyProductResponse(
+    val productId : String,
+    val productImage : String,
+    val productName : String,
+    val productPrice : Double,
+    val productDate : String,
+    val productStatus : Boolean
+)
+//endregion
+
+// region Update profile request
+@Serializable
+data class UpdateProfileRequest(
+    val name : String,
+    val email : String,
+    val mobileNo : String,
+    val country : String,
+    val state : String,
+    val city : String
+)
+// endregion
+
+// region update Product
+@Serializable
+data class UpdateProductRequest(
+    val productId : String,
+    val price : String,
+    val date : String,
+    val status : String
+)
+// endregion
+
+// region Delete product picture
+@Serializable
+data class DeleteProductPictureRequest(
+    val url : String
+)
+// endregion
+
+// region Product Details Response
+@Serializable
+data class ProductDetailsResponse(
+    val name : String,
+    val category : String,
+    val description : String,
+    val price : Double,
+    val date : String,
+    val status : Boolean,
+    val forCountry : String,
+    val forState : String,
+    val forCity : String,
+    val pictureUrl : String,
+    val publisher : String,
+    val publisherEmail : String,
+    val publisherMobileNumber : String,
+    val otherPictures : List<String>
+)

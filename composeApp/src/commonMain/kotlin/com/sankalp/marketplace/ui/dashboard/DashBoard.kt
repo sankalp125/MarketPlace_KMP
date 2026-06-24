@@ -1,5 +1,6 @@
 package com.sankalp.marketplace.ui.dashboard
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.scrollBy
@@ -30,6 +31,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -91,20 +93,25 @@ import com.sankalp.marketplace.utils.rememberBottomSheetManager
 import com.sankalp.marketplace.utils.rememberDialogManager
 import com.sankalp.marketplace.utils.rememberImagePicker
 import compose.icons.FeatherIcons
+import compose.icons.feathericons.Camera
 import compose.icons.feathericons.Image
+import compose.icons.feathericons.LogOut
 import compose.icons.feathericons.Plus
 import compose.icons.feathericons.Search
+import compose.icons.feathericons.User
 import compose.icons.feathericons.X
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
+import com.sankalp.marketplace.utils.SessionManager
 
 @Composable
 fun DashBoardRoot(
-    onNavigateToProductDetails: (prodId: String) -> Unit,
+    onNavigateToProductDetails: (prodId: String, isMyProduct: Boolean) -> Unit,
     onNavigateToEditProduct: (prodId: String) -> Unit,
-    onaNavigateToLogin: () -> Unit
+    onNavigateToLogin: () -> Unit
 ) {
-    val viewModel = koinViewModel<DashBoardVm>()
+    val sessionScope = SessionManager.getOrCreateSessionScope()
+    val viewModel = koinViewModel<DashBoardVm>(scope = sessionScope)
     val state by viewModel.state.collectAsState()
     val onEvent = viewModel::onEvent
     val snackBarHostState = remember { SnackbarHostState() }
@@ -120,9 +127,9 @@ fun DashBoardRoot(
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
-                is DashBoardEffect.NavigateToProductDetails -> onNavigateToProductDetails(effect.prodId)
+                is DashBoardEffect.NavigateToProductDetails -> onNavigateToProductDetails(effect.prodId, effect.isMyProduct)
                 is DashBoardEffect.NavigateToEditProduct -> onNavigateToEditProduct(effect.prodId)
-                is DashBoardEffect.NavigateToLogin -> onaNavigateToLogin()
+                is DashBoardEffect.NavigateToLogin -> onNavigateToLogin()
                 is DashBoardEffect.ShowMessage -> snackBarHostState.showSnackbar(effect.message)
                 is DashBoardEffect.ShowBottomSheet -> {
                     if (currentIsDesktop){
@@ -155,6 +162,9 @@ fun DashBoardRoot(
                                 }
                                 BottomSheetType.PRODUCT_OTHER -> {
                                     onEvent(DashBoardEvent.OnProductImagePicked(path))
+                                }
+                                BottomSheetType.PROFILE_PIC -> {
+                                    onEvent(DashBoardEvent.OnProfilePicPicked(path))
                                 }
                             }
                         }
@@ -530,12 +540,200 @@ fun ProfileScreen(
     onEvent: (DashBoardEvent) -> Unit = {},
     keyboardController: SoftwareKeyboardController? = null
 ) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
+    val windowSize = getWindowSize()
+    val isDesktop = windowSize != WindowSize.Compact
 
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        // Section 1: User Profile
+        item {
+            Column(
+                modifier = Modifier
+                    .then(
+                        if (isDesktop) Modifier.widthIn(max = 600.dp)
+                        else Modifier.fillMaxWidth()
+                    ),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Profile Image
+                Box(
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(CircleShape)
+                        .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                        .clickable { onEvent(DashBoardEvent.OnProfilePicPickRequest(BottomSheetType.PROFILE_PIC)) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (state.profileDetails?.photoUrl?.isNotBlank() == true || state.selectedProfilePic.isNotBlank()) {
+                        AsyncImage(
+                            model = if (state.selectedProfilePic.isNotBlank()) state.selectedProfilePic else state.profileDetails?.photoUrl,
+                            contentDescription = "Profile Picture",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Icon(
+                            imageVector = FeatherIcons.User,
+                            contentDescription = null,
+                            modifier = Modifier.size(60.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
+                    // Edit Overlay
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.3f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = FeatherIcons.Camera,
+                            contentDescription = "Edit Profile Picture",
+                            tint = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+
+                if (state.updatingProfilePic) {
+                    CircularProgressIndicator(modifier = Modifier.size(20.dp))
+                }
+
+                Text(
+                    text = state.profileDetails?.name ?: "User Name",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+
+                // Profile Fields
+                OutlinedTextField(
+                    value = state.profileDetails?.name ?: "",
+                    onValueChange = { onEvent(DashBoardEvent.OnProfileNameChange(it)) },
+                    label = { Text("Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp)
+                )
+
+                OutlinedTextField(
+                    value = state.profileDetails?.mobile ?: "",
+                    onValueChange = { onEvent(DashBoardEvent.OnProfilePhoneChange(it)) },
+                    label = { Text("Phone") },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    shape = RoundedCornerShape(10.dp)
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedTextField(
+                        value = state.profileDetails?.country ?: "",
+                        onValueChange = { onEvent(DashBoardEvent.OnProfileCountryChange(it)) },
+                        label = { Text("Country") },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    OutlinedTextField(
+                        value = state.profileDetails?.state ?: "",
+                        onValueChange = { onEvent(DashBoardEvent.OnProfileStateChange(it)) },
+                        label = { Text("State") },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                }
+
+                OutlinedTextField(
+                    value = state.profileDetails?.city ?: "",
+                    onValueChange = { onEvent(DashBoardEvent.OnProfileCityChange(it)) },
+                    label = { Text("City") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp)
+                )
+
+                Button(
+                    onClick = { onEvent(DashBoardEvent.OnProfileUpdateClick) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    enabled = !state.updatingProfile
+                ) {
+                    if (state.updatingProfile) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    } else {
+                        Text("Update Profile")
+                    }
+                }
+
+                Button(
+                    onClick = { onEvent(DashBoardEvent.OnLogoutClick) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                ) {
+                    Icon(imageVector = FeatherIcons.LogOut, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Logout")
+                }
+            }
+        }
+
+        // Section 2: My Products
+        item {
+            Text(
+                text = "My Products",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        if (state.loadingMyProducts) {
+            items(3) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp)
+                        .padding(vertical = 8.dp)
+                        .shimmerable(enabled = true, shape = RoundedCornerShape(12.dp))
+                )
+            }
+        } else if (state.myProducts.isEmpty()) {
+            item {
+                Text("You haven't uploaded any products yet.")
+            }
+        } else {
+            items(state.myProducts) { product ->
+                val adaptedProduct = ProductListResponse(
+                    productId = product.productId,
+                    productName = product.productName,
+                    productDesc = "",
+                    productCategory = "",
+                    productCity = "",
+                    productPrice = product.productPrice.toString(),
+                    pictureUrl = product.productImage
+                )
+
+                ProductListCard(
+                    product = adaptedProduct,
+                    onClick = { onEvent(DashBoardEvent.OnMyProductClick(product.productId)) },
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            }
+        }
     }
 }
 

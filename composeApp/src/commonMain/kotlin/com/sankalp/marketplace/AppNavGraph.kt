@@ -2,13 +2,18 @@ package com.sankalp.marketplace
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.sankalp.marketplace.ui.dashboard.DashBoardRoot
+import com.sankalp.marketplace.ui.details.ProductDetailsScreen
+import com.sankalp.marketplace.ui.edit_product.EditProductScreen
 import com.sankalp.marketplace.ui.login.LoginRoot
 import com.sankalp.marketplace.ui.on_board.OnBoardRoot
 import com.sankalp.marketplace.ui.register.RegisterRoot
 import com.sankalp.marketplace.ui.splash.SplashRoot
+import androidx.savedstate.read
 
 
 @Composable
@@ -64,14 +69,47 @@ fun AppNavGraph(
         }
         composable(Screen.Home.route){
             DashBoardRoot(
-                onaNavigateToLogin = {},
-                onNavigateToProductDetails = {},
-                onNavigateToEditProduct = {}
+                onNavigateToLogin = {
+                    navController.navigate(Screen.Login.route){
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToProductDetails = { prodId, isMyProduct ->
+                    navController.navigate(Screen.ProductDetail.createRoute(prodId, isMyProduct))
+                },
+                onNavigateToEditProduct = { prodId ->
+                    navController.navigate(Screen.EditProduct.createRoute(prodId))
+                }
             )
         }
-        composable(Screen.ProductDetail.route) {
-
+        composable(
+            route = Screen.ProductDetail.route,
+            arguments = listOf(
+                navArgument("prodId") { type = NavType.StringType },
+                navArgument("isMyProduct") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val prodId = backStackEntry.arguments?.read { getString("prodId") } ?: ""
+            val isMyProduct = backStackEntry.arguments?.read { getString("isMyProduct") }?.toBoolean() ?: false
+            ProductDetailsScreen(
+                productId = prodId,
+                isMyProduct = isMyProduct,
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToEdit = { id ->
+                    navController.navigate(Screen.EditProduct.createRoute(id))
+                }
+            )
         }
-        composable(Screen.EditProduct.route) {  }
+        composable(
+            route = Screen.EditProduct.route,
+            arguments = listOf(navArgument("prodId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val prodId = backStackEntry.arguments?.read { getString("prodId") } ?: ""
+            EditProductScreen(
+                productId = prodId,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
     }
 }

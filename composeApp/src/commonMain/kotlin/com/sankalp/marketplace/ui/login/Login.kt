@@ -67,6 +67,7 @@ import marketplaceapp.composeapp.generated.resources.Res
 import marketplaceapp.composeapp.generated.resources.ic_visibility
 import marketplaceapp.composeapp.generated.resources.ic_visibility_off
 import marketplaceapp.composeapp.generated.resources.jmp_logo
+import com.sankalp.marketplace.utils.SessionManager
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -75,7 +76,8 @@ fun LoginRoot(
     onNavigateToDashBoard: () -> Unit,
     onNavigateToRegister: () -> Unit
 ) {
-    val viewModel = koinViewModel<LoginVm>()
+    val sessionScope = SessionManager.getOrCreateSessionScope()
+    val viewModel = koinViewModel<LoginVm>(scope = sessionScope)
     val state by viewModel.state.collectAsState()
     val onEvent = viewModel::onEvent
     val snackBarHostState = remember { SnackbarHostState() }
